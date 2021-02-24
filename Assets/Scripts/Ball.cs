@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,14 +9,13 @@ public class Ball : MonoBehaviour
     public Transform paddle;
     public float speed;
     public Transform explosion;
+    public GameManager  gm;
 
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody2D> ();
-
-        
-        
+    
     }
 
     // Update is called once per frame
@@ -40,9 +39,10 @@ public class Ball : MonoBehaviour
     {
         if (other.CompareTag("bottom"))
         {
-            Debug.Log("ball git the bottom of the screen");
+            Debug.Log("ball hit the bottom of the screen");
             rb.velocity = Vector2.zero;
             inPlay = false;
+            gm.UpdateLives(-1);
         }
     }
 
@@ -52,6 +52,7 @@ public class Ball : MonoBehaviour
         {
             Transform newExplosion = Instantiate(explosion, other.transform.position, other.transform.rotation);
             Destroy(newExplosion.gameObject, 2.5f);
+            gm.updateScore (other.gameObject.GetComponent<BrickScript>().points);
 
             Destroy (other.gameObject);
         }
