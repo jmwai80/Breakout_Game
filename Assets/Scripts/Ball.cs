@@ -11,16 +11,26 @@ public class Ball : MonoBehaviour
     public Transform explosion;
     public GameManager  gm;
 
+    AudioSource audio;  // got mp3 from quick live 
+
+
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody2D> ();
+
+        audio = GetComponent<AudioSource>();
+
     
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (gm.gameOver){
+            return;
+        }
+
         if (!inPlay)
         {
             transform.position = paddle.position; 
@@ -48,13 +58,20 @@ public class Ball : MonoBehaviour
 
     void OnCollisionEnter2D(Collision2D other)
     {
-        if (other.transform.CompareTag("brick"))
-        {
-            Transform newExplosion = Instantiate(explosion, other.transform.position, other.transform.rotation);
-            Destroy(newExplosion.gameObject, 2.5f);
-            gm.updateScore (other.gameObject.GetComponent<BrickScript>().points);
+        if (other.transform.CompareTag("brick")){
+            BrickScript brickScripts = other.gameObject.GetComponent<BrickScript>();
+            if (brickScripts.hitsToBreak > 1){
+                brickScripts.BreakBrick();
+            }
+            else{
+                    Transform newExplosion = Instantiate(explosion, other.transform.position, other.transform.rotation);
+                    Destroy(newExplosion.gameObject, 2.5f);
+                    gm.updateScore (brickScripts.points);
+                    gm.UpdateNumberOfBricks();
+                    Destroy (other.gameObject);
 
-            Destroy (other.gameObject);
+                    audio.Play();
+            }
         }
     }
 }
